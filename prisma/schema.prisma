@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model carteiras {
+  id          Int            @id @default(autoincrement())
+  usuario_id  Int
+  ticker      String         @db.VarChar(10)
+  tipo        carteiras_tipo
+  quantidade  Int
+  preco_medio Decimal        @db.Decimal(10, 2)
+  preco_atual Decimal?       @default(0.00) @db.Decimal(10, 2)
+  dy_anual    Decimal?       @default(0.00) @db.Decimal(5, 2)
+  usuarios    usuarios       @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "carteiras_ibfk_1")
+
+  @@index([usuario_id], map: "usuario_id")
+}
+
+model controle_acessos {
+  ip            String    @id @db.VarChar(45)
+  requisicoes   Int       @default(1)
+  ultimo_acesso DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model historico_dividendos {
+  id             Int      @id @default(autoincrement())
+  usuario_id     Int
+  ticker         String   @db.VarChar(10)
+  valor_recebido Decimal  @db.Decimal(10, 2)
+  data_pagamento DateTime @db.Date
+  usuarios       usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "historico_dividendos_ibfk_1")
+
+  @@index([usuario_id], map: "usuario_id")
+}
+
+model recuperacao_senha {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(255)
+  token     String   @db.VarChar(100)
+  expira_em DateTime @db.DateTime(0)
+}
+
+model user_tokens {
+  id            Int       @id @default(autoincrement())
+  usuario_id    Int
+  refresh_token String    @db.Text
+  device_name   String?   @db.VarChar(255)
+  ip_origem     String?   @db.VarChar(45)
+  data_criacao  DateTime? @default(now()) @db.Timestamp(0)
+  ultimo_uso    DateTime? @default(now()) @db.Timestamp(0)
+  usuarios      usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_tokens_ibfk_1")
+
+  @@index([usuario_id], map: "usuario_id")
+}
+
+model usuarios {
+  id                   Int                    @id @default(autoincrement())
+  nome                 String                 @db.VarChar(100)
+  email                String                 @unique(map: "email") @db.VarChar(150)
+  senha_hash           String?                @db.VarChar(255)
+  foto_perfil          String?                @db.VarChar(255)
+  elo_atual            String?                @default("Iniciante") @db.VarChar(50)
+  perfil_publico       Boolean?               @default(false)
+  plano                String?                @default("Free") @db.VarChar(20)
+  data_criacao         DateTime?              @default(now()) @db.Timestamp(0)
+  aceitou_termos       Boolean                @default(true)
+  data_aceite          DateTime?              @default(now()) @db.Timestamp(0)
+  ip_cadastro          String?                @db.VarChar(45)
+  provedor_auth        String?                @default("email") @db.VarChar(50)
+  codigo_verificacao   String?                @db.VarChar(6)
+  conta_verificada     Boolean?               @default(false)
+  assinatura_mp_id     String?                @db.VarChar(100)
+  carteiras            carteiras[]
+  historico_dividendos historico_dividendos[]
+  notificacoes         notificacoes[]
+  user_tokens          user_tokens[]
+}
+
+model notificacoes {
+  id           Int       @id @default(autoincrement())
+  usuario_id   Int
+  titulo       String    @db.VarChar(150)
+  mensagem     String    @db.Text
+  lida         Boolean?  @default(false)
+  data_criacao DateTime? @default(now()) @db.Timestamp(0)
+  usuarios     usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "notificacoes_ibfk_1")
+
+  @@index([usuario_id], map: "usuario_id")
+}
+
+enum carteiras_tipo {
+  Acao
+  FII
+  CDB
+}
