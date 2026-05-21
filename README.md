@@ -45,12 +45,17 @@ Security is not an afterthought here. This API implements:
 
 1. **Clone the repository:**
    ```bash
+   
    git clone [https://github.com/iarley-araujo/aximoz-api.git](https://github.com/iarley-araujo/aximoz-api.git)
+   
 Install dependencies:
 
 Bash
+
 npm install
+
 Configure Environment:
+
 Create a .env file in the root directory:
 
 Snippet de código
@@ -60,9 +65,16 @@ CRON_SECRET="your_cron_secret"
 Run Database Migrations:
 
 Bash
+
 npx prisma db push
+
 Start Development:
 
 Bash
+
 npm run dev
+
 👨‍💻 Developer
+Iarley Carvalho Araujo Cyber Defense Student | Cybersecurity Enthusiast
+
+Built with passion and secure coding standards.
